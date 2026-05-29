@@ -1,0 +1,115 @@
+// This is your Prisma schema file.
+// Learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ==========================================
+// 🧠 ENUMS
+// ==========================================
+
+enum TaskStatus {
+  TODO
+  IN_PROGRESS
+  DONE
+}
+
+enum TaskPriority {
+  LOW
+  MEDIUM
+  HIGH
+}
+
+enum UserRole {
+  USER
+  ADMIN
+}
+
+// ==========================================
+// 🏢 MODELS & RELATIONS
+// ==========================================
+
+model User {
+  id           String      @id @default(uuid())
+
+  email        String      @unique
+  password     String
+
+  refreshToken String?     // Nullable until a user logs in and gets a session
+
+  role         UserRole    @default(USER)
+  
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+
+  // Relations
+  workspaces   Workspace[] // 1 User can own many Workspaces
+  assignedTasks Task[]     @relation("AssignedTasks") // Tasks assigned to this user
+
+  @@map("users") // Best practice: maps model to lowercase plural database table
+}
+
+model Workspace {
+  id        String    @id @default(uuid())
+
+  name      String
+
+  ownerId   String
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  // Relations
+  owner     User      @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  projects  Project[] // 1 Workspace has many Projects
+
+  @@index([ownerId]) // Speed up lookups for a user's workspaces
+  @@map("workspaces")
+}
+
+model Project {
+  id          String    @id @default(uuid())
+
+  name        String
+
+  workspaceId String
+
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  // Relations
+  workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  tasks       Task[]    // 1 Project has many Tasks
+
+  @@index([workspaceId])
+  @@map("projects")
+}
+
+model Task {
+  id           String       @id @default(uuid())
+
+  title        String
+  description  String?      // Optional field
+  status       TaskStatus   @default(TODO)
+  priority     TaskPriority @default(MEDIUM)
+
+  projectId    String
+  assignedToId String?      // Optional if a task isn't assigned to anyone yet
+
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+
+  // Relations
+  project      Project      @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  assignedTo   User?        @relation("AssignedTasks", fields: [assignedToId], references: [id], onDelete: SetNull)
+
+  @@index([projectId])
+  @@index([assignedToId])
+  @@map("tasks")
+}
