@@ -1,14 +1,14 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Req, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Req, UseGuards, Query } from '@nestjs/common';
 import { ProjectsService } from './projects.service';
 import { CreateProjectDto } from './dto/create-project.dto';
 import { UpdateProjectDto } from './dto/update-project.dto';
 import { JwtAuthGuard } from 'src/auth/guards/jwt.guard';
 
 @Controller('projects')
+@UseGuards(JwtAuthGuard)
 export class ProjectsController {
   constructor(private readonly projectsService: ProjectsService) {}
 
-  @UseGuards(JwtAuthGuard)
   @Post()
   create(
     @Req() req,
@@ -20,15 +20,14 @@ export class ProjectsController {
     );
   }
 
-  @UseGuards(JwtAuthGuard)
   @Get()
-  findAll(@Req() req) {
+  findAll(@Query('workspaceId') workspaceId: string,@Req() req) {
     return this.projectsService.findAll(
+      workspaceId,
       req.user.sub
     );
   }
 
-  @UseGuards(JwtAuthGuard)
   @Get(':id')
   findOne(
     @Param('id') id: string,
@@ -40,7 +39,6 @@ export class ProjectsController {
     );
   }
 
-  @UseGuards(JwtAuthGuard)
   @Patch(':id')
   update(
     @Req() req,
@@ -53,12 +51,13 @@ export class ProjectsController {
     );
   }
 
-  @UseGuards(JwtAuthGuard)
   @Delete(':id')
   remove(
+    @Param('id') id: string,
     @Req() req
   ) {
     return this.projectsService.remove(
+      id,
       req.user.sub
     );
   }

@@ -5,4 +5,7 @@ import {
 export class CreateProjectDto {
   @IsString()
   name!: string
+
+  @IsString()
+  workspaceId!: string
 }
