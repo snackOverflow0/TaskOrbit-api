@@ -1,33 +1,30 @@
-AUTH
-POST   /auth/register
-POST   /auth/login
-POST   /auth/refresh
-POST   /auth/logout
-GET    /auth/me
+# 🚀 TaskOrbit Backend API
 
-WORKSPACES
-POST   /workspaces
-GET    /workspaces
-GET    /workspaces/:id
-PATCH  /workspaces/:id
-DELETE /workspaces/:id
+TaskOrbit is a high-performance, multi-tenant Project Management API built with **NestJS**, **Prisma**, and **PostgreSQL**. The platform features enterprise-grade security armor, RBAC (Role-Based Access Control) authorization, and a multi-tiered **Redis** in-memory caching system designed to scale.
 
-PROJECTS
-POST   /projects
-GET    /projects
-GET    /projects/:id
-PATCH  /projects/:id
-DELETE /projects/:id
+---
 
-TASKS
-POST   /tasks
-GET    /tasks
-GET    /tasks/:id
-PATCH  /tasks/:id
-DELETE /tasks/:id
+## 🏗️ Architectural Overview
 
-ADVANCED TASK ENDPOINTS
-GET /tasks?status=TODO
-GET /tasks?priority=HIGH
-GET /tasks?search=login
-GET /tasks?page=1&limit=10
+The core system is structured around an automated, hardened lifecycle designed to protect data integrity and maximize throughput speed:
+
+```text
+       [ Client Request ]
+               │
+      🛡️  HELMET / CORS SECURITY (HTTP Header Masking)
+               │
+      ⏱️  RATE LIMITER (Global ThrottlerGuard)
+               │
+      🔑  AUTHENTICATION (Passport JWT Validation)
+               │
+      🏅  AUTHORIZATION (Dynamic Reflective RolesGuard)
+               │
+      📥  VALIDATION PIPE (DTO Data Payload Whitening)
+               │
+      ⚡  REDIS RAM LAYER (Blazing Fast Cache-Aside Hits)
+               │
+      🐢  POSTGRESQL LAYER (Prisma Relational Data Engine)
+               │
+      📤  TRANSFORM INTERCEPTOR (Standardized Corporate JSON Output)
+               │
+         [ Clean Response ]
